@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace FlexScheduler
 {
@@ -9,6 +11,10 @@ namespace FlexScheduler
     public class Job
     {
         public JobSchedule Schedule { get; set; }
+
+        /// <summary>
+        /// The name of the job
+        /// </summary>
         public virtual string Name { get; set; }
 
         public virtual string Key
@@ -23,6 +29,15 @@ namespace FlexScheduler
                 return Name;
             }
         }
+
+        /// <summary>
+        /// specifies a task scheduler if needed, by default, it's NewThreadScheduler. 
+        /// </summary>
+        /// <remarks>
+        /// This cannot be serialized and deserialized, however, we can use an Enum if we really want to carry this in configuration.
+        /// </remarks>
+        [JsonIgnore]
+        public IScheduler TaskScheduler { get; set; }
     }
 
     /// <summary>

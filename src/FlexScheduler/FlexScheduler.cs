@@ -57,16 +57,15 @@ namespace FlexScheduler
         /// Start all jobs defined in the scheduler.
         /// Once starts, calling again will not have any effect. 
         /// </summary>
-        /// <returns>The total amount of jobs in the scheduler</returns>
-        public int Start()
+        /// <returns>the current instance of FlexScheduler</returns>
+        public FlexScheduler Start()
         {
             if (!_started)
             {
                 _started = true;
                 _observableDisposable = _jobs
                     .Values
-                    .Select(a => a.ToObservable())
-                    .Aggregate((a, b) => a.Merge(b))
+                    .ToObservable()
                     .Subscribe(async a =>
                     {
                         if (a.Job is ExecutableJob executable)
@@ -80,7 +79,7 @@ namespace FlexScheduler
                     });
             }
 
-            return _jobs.Count;
+            return this;
         }
 
         /// <summary>

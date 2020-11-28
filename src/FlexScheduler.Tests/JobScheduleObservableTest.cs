@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using Microsoft.Reactive.Testing;
@@ -10,6 +11,7 @@ namespace FlexScheduler.Tests
     [TestClass]
     public class JobScheduleObservableTest
     {
+        private const int Interval = 120;
         // trigger one after 10 minutes, another one after 20 minutes 
         private static Job FixedTimeJobForTesting
         {
@@ -45,7 +47,7 @@ namespace FlexScheduler.Tests
                     Name = "Interval",
                     Schedule = new IntervalJobSchedule
                     {
-                        IntervalInSeconds = 120,
+                        IntervalInSeconds = Interval,
                         ExitStrategy = new ScheduleExitStrategy
                         {
                             MaxRun = 1
@@ -73,6 +75,7 @@ namespace FlexScheduler.Tests
                     });
 
             testScheduler.Start();
+            testScheduler.AdvanceBy(Interval);
             Assert.IsTrue(triggered == 1, "Trigger should be 1, but it is actually " + triggered);
             testScheduler.Stop();
             var diff = end - start;
@@ -89,23 +92,58 @@ namespace FlexScheduler.Tests
             job1.Schedule.TriggerAtStart = true;
             var testScheduler = new TestScheduler();
             var triggered = 0;
+
+            testScheduler.AdvanceTo(DateTime.Now.Ticks);
             var start = testScheduler.Now;
             var end = start;
             job1.ToObservable(testScheduler)
                 .Subscribe(
                     a =>
                     {
-                        triggered++;
+                        triggered = a.RunTimes;
                         end = testScheduler.Now;
                     });
 
             testScheduler.Start();
             Assert.IsTrue(triggered == 1, "Trigger should be 1, but it is actually " + triggered);
             testScheduler.Stop();
+
             var diff = end - start;
-            // the time difference could have small variance in the level of ms 
-            Assert.IsTrue(diff.TotalMilliseconds < 5.0,
-                "The time should be less than 1 millisecond, but it's actually" + diff.TotalMinutes);
+            // the time difference could have small variance in the level of ms, because it starts right away
+            Assert.IsTrue(diff.TotalMilliseconds < 5.0,  "The time should be less than 1 millisecond, but it's actually" + diff.TotalMinutes);
+        }
+
+        [TestMethod]
+        public void It_should_not_run_at_start()
+        {
+            var job1 = IntervalJobForTesting;
+            // if we set this, then the job starts right away, and we will not elapse any "time" 
+            job1.Schedule.TriggerAtStart = false;
+            job1.Schedule.AfterStartInSeconds = Interval;
+
+            var testScheduler = new TestScheduler();
+            var triggered = 0;
+            var start = testScheduler.Now;
+            var end = start;
+            job1.ToObservable(testScheduler)
+                .Subscribe(
+                    a =>
+                    {
+                        triggered = a.RunTimes;
+                        end = testScheduler.Now;
+                    });
+
+            testScheduler.Start();
+            Assert.IsTrue(triggered == 1, "Trigger should be 1, but it is actually " + triggered);
+            testScheduler.Stop();
+
+            var diff = end - start;
+            Debug.WriteLine($"start: {start}");
+            Debug.WriteLine($"end: {end}");
+
+            // once we start the scheduler, it will trigger the "Delay" and then fire the first item 
+            // because we delay execution Interval and then run it, so it will be Interval * 2 difference 
+            Assert.IsTrue(diff.TotalSeconds >= (Interval * 2 - 1) && diff.TotalSeconds <= (Interval * 2 + 1),  "The time should have elapsed roughly 120 seconds");
         }
 
         [TestMethod]
@@ -129,10 +167,12 @@ namespace FlexScheduler.Tests
             testScheduler.Start();
             Assert.IsTrue(triggered == 2, "Trigger should be 2, but it is actually " + triggered);
             testScheduler.Stop();
+
             var diff = end - start;
+            Debug.WriteLine($"start: {start}");
+            Debug.WriteLine($"end: {end}");
             // the time should have elapsed exactly 120 seconds, maybe +/- a few milliseconds 
-            Assert.IsTrue(diff.TotalSeconds > 120 && diff.TotalSeconds < 121,
-                "The time should have elapsed roughly 120 seconds");
+            Assert.IsTrue(diff.TotalSeconds >= (Interval - 1) && diff.TotalSeconds <= (Interval + 1),  "The time should have elapsed roughly 120 seconds");
         }
 
         [TestMethod]
@@ -157,10 +197,9 @@ namespace FlexScheduler.Tests
             testScheduler.Start();
             Assert.IsTrue(triggered == 3, "Trigger should be 3, but it is actually " + triggered);
             testScheduler.Stop();
+
             var diff = end - start;
-            // the time should have elapsed exactly 120 seconds, maybe +/- a few milliseconds 
-            Assert.IsTrue(diff.TotalSeconds > 360 && diff.TotalSeconds < 361,
-                "The time should have elapsed roughly 360 seconds");
+            Assert.IsTrue(diff.TotalSeconds > 360 && diff.TotalSeconds < 361,  "The time should have elapsed roughly 360 seconds");
         }
 
         [TestMethod]
@@ -184,11 +223,9 @@ namespace FlexScheduler.Tests
                     });
 
             testScheduler.AdvanceTo(start.AddMinutes(10).Ticks);
-
             var diff = end - start;
             Assert.IsTrue(triggered == 1, "Trigger should be 1, but it is actually " + triggered);
-            Assert.IsTrue(diff.TotalMinutes >= 9 && diff.TotalMinutes <= 11,
-                "The time should have elapsed roughly 10 minutes, but actually " + diff.TotalMinutes);
+            Assert.IsTrue(diff.TotalMinutes >= 9 && diff.TotalMinutes <= 11,  "The time should have elapsed roughly 10 minutes, but actually " + diff.TotalMinutes);
         }
 
         [TestMethod]

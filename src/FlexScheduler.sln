@@ -7,7 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexScheduler", "FlexSchedu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlexScheduler.Tests", "FlexScheduler.Tests\FlexScheduler.Tests.csproj", "{B2DD3BA8-F904-42A5-9199-57E9EA10FFC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlexScheduler.SampleConsole", "FlexScheduler.SampleConsole\FlexScheduler.SampleConsole.csproj", "{11C4BEA9-B968-4D0D-85E5-B3AEEE09F9B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexScheduler.SampleConsole", "FlexScheduler.SampleConsole\FlexScheduler.SampleConsole.csproj", "{11C4BEA9-B968-4D0D-85E5-B3AEEE09F9B6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A1AD19D-7DEA-4D3B-A338-9E44BB17A2A5}"
+	ProjectSection(SolutionItems) = preProject
+		..\LICENSE.md = ..\LICENSE.md
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,6 +4,17 @@ using Newtonsoft.Json.Linq;
 
 namespace FlexScheduler
 {
+    public static class JobSerializationSettings {
+        public static JsonSerializerSettings Settings =>
+            new JsonSerializerSettings()
+            {
+                Formatting = Formatting.Indented,
+                Converters = {
+                    new JobScheduleJsonConverter()
+                }
+            };
+    }
+
     public class JobScheduleJsonConverter : JsonConverter
     {
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)

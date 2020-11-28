@@ -1,0 +1,47 @@
+[
+  {
+    "Schedule": {
+      "type": "IntervalJobSchedule",
+      "IntervalInSeconds": 120,
+      "TriggerAtStart": true,
+      "AfterStartInSeconds": 10
+    },
+    "Name": "job1"
+  },
+  {
+    "Activities": null,
+    "Schedule": {
+      "type": "IntervalJobSchedule",
+      "IntervalInSeconds": 120,
+      "TriggerAtStart": false,
+      "AfterStartInSeconds": 20
+    },
+    "Name": "job2"
+  },
+  {
+    "Schedule": {
+      "type": "FixedTimeJobSchedule",
+      "Slots": [
+        {
+          "DayOfWeek": 5,
+          "TimeOfDay": {
+            "Hour": 17,
+            "Minute": 19,
+            "Second": 0
+          }
+        },
+        {
+          "DayOfWeek": 1,
+          "TimeOfDay": {
+            "Hour": 16,
+            "Minute": 30,
+            "Second": 0
+          }
+        }
+      ],
+      "TriggerAtStart": false,
+      "AfterStartInSeconds": 0
+    },
+    "Name": "job3"
+  }
+]

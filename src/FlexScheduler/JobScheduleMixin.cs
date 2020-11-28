@@ -13,7 +13,7 @@ namespace FlexScheduler
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="job"></param>
-        /// <param name="scheduler"></param>
+        /// <param name="scheduler">A task scheduler, if not specified, try to use the one on the Job, otherwise, it falls back to the default NewThreadScheduler</param>
         /// <returns>an Observable of JobObservable</returns>
         /// <remarks>
         /// An observable is a sequence. This mixin allows us to convert a type of Job to an observable.
@@ -30,17 +30,42 @@ namespace FlexScheduler
             {
                 case IntervalJobSchedule intervalSchedule:
                     {
-                        return job.ScheduleIntervalJob(intervalSchedule, scheduler);
+                        return job.ScheduleIntervalJob(intervalSchedule, scheduler ?? job.TaskScheduler);
                     }
                 case FixedTimeJobSchedule fixedSchedule:
                     {
-                        return job.ScheduleFixedTimeJob(fixedSchedule, scheduler);
+                        return job.ScheduleFixedTimeJob(fixedSchedule, scheduler ?? job.TaskScheduler);
                     }
                 default:
                     {
                         throw new NotSupportedException($"{job.Schedule.GetType().FullName} is not supported");
                     }
             }
+        }
+
+        /// <summary>
+        /// Converts a list of jobs to a sequence of observable 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="jobs"></param>
+        /// <param name="scheduler"></param>
+        /// <returns></returns>
+        public static IObservable<JobObservable<T>> ToObservable<T>(this IEnumerable<T> jobs,
+            IScheduler scheduler = null) where T : Job
+        {
+            IObservable<JobObservable<T>>[] jobobservables = jobs.Select(a => a.ToObservable(scheduler)).ToArray();
+            if (jobobservables.Any())
+            {
+                var first = jobobservables.First();
+                for (int i = 1; i < jobobservables.Length; i++)
+                {
+                    first = first.Merge(jobobservables[i]);
+                }
+
+                return first;
+            }
+
+            return Observable.Empty<JobObservable<T>>();
         }
 
         private static long GetSecondsToNextRun(IEnumerable<DayTimeSlot> slots, IScheduler scheduler)
@@ -93,7 +118,7 @@ namespace FlexScheduler
                                                                              IScheduler scheduler = null)
             where T : Job
         {
-            IScheduler sc = scheduler ?? TaskPoolScheduler.Default;
+            IScheduler sc = scheduler ?? NewThreadScheduler.Default;
 
             (DateTimeOffset currentTime, int tickCount) initialState = (sc.Now, 1);
             long distanceToNextRun = GetSecondsToNextRun(jobSchedule.Slots, sc);
@@ -107,7 +132,7 @@ namespace FlexScheduler
                     {
                         if (job.Schedule.TriggerAtStart && x.tickCount == 1)
                         {
-                            return TimeSpan.FromSeconds(job.Schedule.AfterStartInSeconds);
+                            return TimeSpan.Zero;
                         }
 
                         distanceToNextRun = GetSecondsToNextRun(jobSchedule.Slots, sc);
@@ -116,6 +141,7 @@ namespace FlexScheduler
                 sc);
 
             return o
+                .Delay(TimeSpan.FromSeconds(job.Schedule.AfterStartInSeconds), sc)
                 .Select(
                 state => new JobObservable<T>
                 {
@@ -128,11 +154,11 @@ namespace FlexScheduler
         private static IObservable<JobObservable<T>> ScheduleIntervalJob<T>(this T job, IntervalJobSchedule jobSchedule, IScheduler scheduler = null)
             where T : Job
         {
-            IScheduler sc = scheduler ?? TaskPoolScheduler.Default;
+            IScheduler sc = scheduler ??
+                            NewThreadScheduler.Default;
+
             (DateTimeOffset currentTime, int tickCount) initialState = (sc.Now, 1);
             var intervalInSeconds = jobSchedule.IntervalInSeconds;
-            bool exit = false;
-
             var o = Observable.Generate(
                 initialState,
                 x => ShouldContinue(jobSchedule.ExitStrategy, x.tickCount, x.currentTime),
@@ -140,9 +166,9 @@ namespace FlexScheduler
                 x => x,
                 x =>
                     {
-                        if (job.Schedule.TriggerAtStart &&  x.tickCount == 1)
+                        if (job.Schedule.TriggerAtStart && x.tickCount == 1)
                         {
-                            return TimeSpan.FromSeconds(job.Schedule.AfterStartInSeconds);
+                            return TimeSpan.Zero;
                         }
 
                         return TimeSpan.FromSeconds(intervalInSeconds);
@@ -150,6 +176,7 @@ namespace FlexScheduler
                 sc);
 
             return o
+                .Delay(TimeSpan.FromSeconds(job.Schedule.AfterStartInSeconds), sc)
                 .Select(
                 state => new JobObservable<T>
                 {
@@ -164,11 +191,10 @@ namespace FlexScheduler
             if (exitStrategy == null)
                 return true;
 
-            // we have to add 1 to compare, because the condition check is called after the first time tick
             if (exitStrategy.MaxRun.HasValue)
                 return exitStrategy.MaxRun.Value >= ticked;
 
-            // similar idea, if we don't minus a small time, we will end up going to the next iteration 
+            // if we don't minus a small time, we may end up going to the next iteration 
             if (exitStrategy.TillTime.HasValue)
                 return exitStrategy.TillTime.Value.AddSeconds(-1) >= now;
 
