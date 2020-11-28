@@ -1,10 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FlexScheduler.Tests
+namespace FlexScheduler.Tests.NetCore
 {
     [TestClass]
     public class FlexSchedulerTest

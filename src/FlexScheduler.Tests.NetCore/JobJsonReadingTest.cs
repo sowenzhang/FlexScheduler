@@ -1,14 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
-namespace FlexScheduler.Tests
+namespace FlexScheduler.Tests.NetCore
 {
     [TestClass]
     public class JobJsonReadingTest
@@ -42,7 +41,7 @@ namespace FlexScheduler.Tests
         public void It_should_read_jobs_from_jsonfile()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "FlexScheduler.Tests.config.jobs.json";
+            var resourceName = "FlexScheduler.Tests.NetCore.config.jobs.json";
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             {

@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 using Microsoft.Reactive.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace FlexScheduler.Tests
+namespace FlexScheduler.Tests.NetCore
 {
     [TestClass]
     public class JobScheduleObservableTest
