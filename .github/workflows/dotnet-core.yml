@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore FlexScheduler.sln
+      run: dotnet restore src/FlexScheduler.sln
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
