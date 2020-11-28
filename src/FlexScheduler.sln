@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FlexScheduler.SampleConsole
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8A1AD19D-7DEA-4D3B-A338-9E44BB17A2A5}"
 	ProjectSection(SolutionItems) = preProject
+		..\resources\Icon-64.ico = ..\resources\Icon-64.ico
+		..\resources\Icon-64.png = ..\resources\Icon-64.png
 		..\LICENSE.md = ..\LICENSE.md
 		..\README.md = ..\README.md
 	EndProjectSection

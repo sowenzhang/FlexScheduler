@@ -2,11 +2,33 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <ApplicationIcon>Icon-64.ico</ApplicationIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>A lightweight but flexible and data model driven scheduling library for .NET.</Description>
+    <Copyright>MIT License</Copyright>
+    <PackageIcon>Icon-64.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/sowenzhang/FlexScheduler</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sowenzhang/FlexScheduler</RepositoryUrl>
+    <PackageReleaseNotes>initial version</PackageReleaseNotes>
+    <Authors>HongInCanada</Authors>
+    <Company>HongInCanada</Company>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\resources\Icon-64.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
