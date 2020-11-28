@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env: 
+  sol: src/FlexScheduler.sln
+  
 jobs:
   build:
 
@@ -18,8 +21,8 @@ jobs:
       with:
         dotnet-version: 3.1.301
     - name: Install dependencies
-      run: dotnet restore src/FlexScheduler.sln
+      run: dotnet restore ${{ env.sol }}
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore ${{ env.sol }}
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity normal ${{ env.sol }}
