@@ -1,6 +1,14 @@
 # FlexScheduler
 A lightweight but flexible and data model driven scheduling library for .NET. 
 
+# Installation 
+
+Add the package in Visual Studio.NET, or use the following command: 
+
+```powershell
+Install-Package FlexScheduler -Version 1.0.0
+```
+
 # Features 
 
 - Run on interval, e.g. oncce a few seconds, a few minutes, etc. 
